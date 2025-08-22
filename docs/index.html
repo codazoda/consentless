@@ -29,6 +29,8 @@
 
     <p>Consentless is an open source, minimalist, and pricacy preserving traffic counter. It aims to be GDPR compliant without requiring consent. It does so by tracking only impressions on URLs and not IP address or other user identifiable information. Time is tracked only to minute precision to further reduce the ability to pinpoint users with supplemental data.</p>
 
+    <p>It's designed to track impressions instead of users.</p>
+
     <p>It can be installed on any VPS or hosted service.</p>
 
     <p>It can be used as your sole tracking mechanism or it can be used as supplemental tracking for visitors that did not concent to your other tracking methods.</p>
@@ -55,6 +57,14 @@
     <h3>Reporting</h3>
 
     <p></p>
+
+    <h2>Standard Output</h2>
+
+    <p>All CSV data, from impressions, goes to stdout. This allows you to redirect output to a file or attach stdout to a service like pub/sub.</p>
+
+    <h3>Warning</h3>
+
+    <p>If you pass PII in the query string parameter, or as any other part of a URL, then it will be logged. If someone else passes PII in a link to one of your URLs then you might log that.</p>
 
 </body>
 
