@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    
+<head>
+
+    <title>Consentless</title>
+
+    <link rel="stylesheet" type="text/css" href="neat.css">
+    <link rel="stylesheet" type="text/css" href="custom.css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+
+</head>
+
+<body>
+
+<h1>Consentless: System‑Wide Install &amp; Service Layout</h1>
+
+<p>This document describes a clean, nginx‑style filesystem layout for running <code>consentless</code> as a system service with <strong>systemd</strong>. It assumes the service listens on port <code>8080</code>.</p>
+
+<h2>Directory Layout</h2>
+<pre><code>/usr/local/sbin/consentless          # binary (system-wide, locally installed)
+/etc/consentless/                    # app configuration (optional files)
+/var/log/consentless/                # app logs
+/etc/systemd/system/consentless.service  # systemd unit
+</code></pre>
+
+<h2>One‑Time Installation</h2>
+<ol>
+  <li><strong>Create a dedicated system user</strong> (no shell, no home):<br>
+  <pre><code>sudo useradd --system --no-create-home --shell /usr/sbin/nologin consentless
+# (If your distro doesn&apos;t have /usr/sbin/nologin, use /usr/bin/false)</code></pre></li>
+
+  <li><strong>Create directories and set ownership</strong>:
+  <pre><code>sudo mkdir -p /etc/consentless
+sudo mkdir -p /var/log/consentless
+sudo chown -R consentless:consentless /etc/consentless /var/log/consentless
+sudo chmod 750 /etc/consentless
+sudo chmod 750 /var/log/consentless</code></pre></li>
+
+  <li><strong>Install the binary</strong>:
+  <pre><code>sudo install -m 0755 consentless /usr/local/sbin/consentless
+# or: sudo cp consentless /usr/local/sbin/ &amp;&amp; sudo chmod 755 /usr/local/sbin/consentless</code></pre></li>
+</ol>
+
+<h2>Systemd Service Unit (Journald Logging)</h2>
+<p>Recommended: let systemd handle logs. View with <code>journalctl -u consentless</code>.</p>
+<pre><code>[Unit]
+Description=Consentless Analytics
+After=network.target
+
+[Service]
+User=consentless
+Group=consentless
+Environment=PORT=8080
+WorkingDirectory=/etc/consentless
+ExecStart=/usr/local/sbin/consentless
+Restart=on-failure
+RestartSec=2s
+
+# Security hardening (tune if your app needs writes elsewhere)
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/log/consentless /etc/consentless
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<h3>Enable &amp; Start</h3>
+<pre><code>sudo systemctl daemon-reload
+sudo systemctl enable --now consentless
+sudo systemctl status consentless
+# logs:
+sudo journalctl -u consentless -f</code></pre>
+
+<h2>Alternative: File‑Based Logging</h2>
+<p>If you prefer traditional log files instead of journald, use a tiny wrapper that appends stdout/stderr to a file:</p>
+<ol>
+  <li>Create the wrapper:</li>
+</ol>
+<pre><code>sudo mkdir -p /usr/local/libexec
+sudo tee /usr/local/libexec/consentless-run &gt;/dev/null &lt;&lt;&apos;EOF&apos;
+#!/bin/sh
+exec /usr/local/sbin/consentless &gt;&gt;/var/log/consentless/consentless.log 2&gt;&amp;1
+EOF
+sudo chmod 755 /usr/local/libexec/consentless-run
+sudo chown root:root /usr/local/libexec/consentless-run</code></pre>
+
+<p>Then point the unit at the wrapper:</p>
+<pre><code>[Service]
+User=consentless
+Group=consentless
+Environment=PORT=8080
+WorkingDirectory=/etc/consentless
+ExecStart=/usr/local/libexec/consentless-run
+Restart=on-failure
+RestartSec=2s
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/log/consentless /etc/consentless
+</code></pre>
+
+<h2>Updating the Binary</h2>
+<pre><code># Build or fetch your new binary, then:
+sudo install -m 0755 consentless /usr/local/sbin/consentless
+sudo systemctl restart consentless
+sudo systemctl status consentless</code></pre>
+
+<h2>Common Management Commands</h2>
+<pre><code>sudo systemctl restart consentless
+sudo systemctl stop consentless
+sudo systemctl disable consentless
+sudo journalctl -u consentless --since "today"</code></pre>
+
+<h2>Optional Extras</h2>
+<ul>
+  <li><strong>Environment file:</strong> put key=value lines in <code>/etc/consentless/env</code> and add <code>EnvironmentFile=/etc/consentless/env</code> under <code>[Service]</code>.</li>
+  <li><strong>Configuration:</strong> store app configs in <code>/etc/consentless/</code>, ensure the service user has read access.</li>
+  <li><strong>Port 80/443:</strong> if you later bind privileged ports (&lt;1024), either run behind a reverse proxy (nginx) or grant capabilities (e.g., <code>setcap &apos;cap_net_bind_service=+ep&apos; /usr/local/sbin/consentless</code>).</li>
+</ul>
+
+<h2>Uninstall</h2>
+<pre><code>sudo systemctl disable --now consentless
+sudo rm -f /etc/systemd/system/consentless.service
+sudo systemctl daemon-reload
+sudo userdel consentless   # optional
+sudo rm -rf /etc/consentless /var/log/consentless
+sudo rm -f /usr/local/sbin/consentless /usr/local/libexec/consentless-run</code></pre>
+
+<p>That&apos;s it — your app now uses a predictable, nginx‑like layout with a proper system service, clear config, and logs.</p>
+
+</body>
+
+</html>
