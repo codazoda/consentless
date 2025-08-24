@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+	http.HandleFunc("/consentless.js", serveConsentlessJS)
+	http.HandleFunc("/counter.js", serveConsentlessJS) // For backward compatibility
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -49,4 +52,40 @@ func main() {
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("http server error: %v", err)
 	}
+}
+
+// serveConsentlessJS serves the consentless.js script with dynamic domain and protocol
+func serveConsentlessJS(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+
+	// Handle preflight request
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// Get the host from the request to make the domain dynamic
+	host := r.Host
+	if host == "" {
+		host = "localhost:8080" // fallback
+	}
+
+	// Determine protocol (check if TLS is being used)
+	protocol := "http"
+	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+		protocol = "https"
+	}
+
+	// Generate JavaScript with dynamic domain and protocol
+	jsCode := fmt.Sprintf(`var xhr = new XMLHttpRequest();
+xhr.open('GET', "%s://%s?rand=" + Math.random(), true);
+xhr.setRequestHeader('X-Referrer', window.location.href);
+xhr.send();
+`, protocol, host)
+
+	// Serve JavaScript
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Write([]byte(jsCode))
 }
