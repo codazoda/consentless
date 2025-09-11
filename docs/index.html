@@ -22,27 +22,33 @@
     <ol>
         <li><a href="#about">About</a></li>
         <li><a href="#gettingStarted">Getting Started</a></li>
+        <li><a href="#client">Client</a></li>
+        <li><a href="#server">Server</a></li>
+        <li><a href="#rationale">Rationale</a></li>
         <li><a href="#license">License</a></li>
     </ol>
 
     <h2 id="about">About</h2>
 
-    <p>Consentless is an open source, minimalist, and privacy preserving traffic counter. It aims to be GDPR compliant without requiring consent. It does so by tracking only impressions on URLs and not IP address or other user identifiable information. Time is tracked only to minute precision to further reduce the ability to pinpoint users with supplemental data.</p>
+    <p>Consentless is an open source, minimalist, and privacy-preserving traffic counter. It's designed to help with compliance with modern privacy laws including CCPA/CPRA (California), UCPA (Utah), GDPR (EU), and similar without requiring consent.</p>
+    
+    <p>It does so by tracking only impressions on URLs and not IP addresses or other personally identifiable information (PII). Time is tracked only to minute precision to further reduce the ability to pinpoint users with supplemental data.</p>
 
     <p>It's designed to track impressions instead of users.</p>
 
     <p>It can be installed on any VPS or hosted service.</p>
 
-    <p>It can be used as your sole tracking mechanism or it can be used as supplemental tracking for visitors that did not concent to your other tracking methods.</p>
+    <p>It can be used as your sole tracking mechanism or it can be used as supplemental tracking for visitors that did not consent to your other tracking methods.</p>
 
-    <p>It's minimal and lightning fast. The client is four lines of JS while the server is under 50 lines of code.</p>
+    <p>It's minimal and lightning fast. The client is four lines of JS while the server is under 100 lines of code, making it easy to examine.</p>
 
 
     <h2 id="gettingStarted">Getting Started</h2>
 
-    <p>There are three parts to counter: the client JavaScript, the server counter, and the reporting dashboard.</p>
+    <p>There are two parts to consentless: the client JavaScript and the server counter.</p>
 
-    <h3>Client</h3>
+
+    <h2 id="client">Client</h2>
 
     <p>Once you have the server configured you add the following script to the bottom of any web page to start tracking stats. This script goes just above the closing body tag.</p>
 
@@ -50,32 +56,37 @@
         <pre>&lt;script src="https://counter.example.com/counter.js" async&gt;&lt;/script&gt;</pre>
     </code>
 
-    <h4>Why an image (vs Beacon or headers)</h4>
-    <p>
-        The client sends a simple image request that includes the page URL as a query parameter. This avoids custom headers and CORS preflight, works with most Content Security Policies via <em>img-src</em>, and keeps the snippet tiny. While <em>sendBeacon</em> is great for unload reliability, it requires allowing the collection origin in your CSP <em>connect-src</em> and adds more code. Custom headers (like X-Referrer) on cross-origin requests are frequently stripped or trigger preflight, so we avoid them.
-    </p>
 
-    <h3>Server</h3>
+    <h2 id="server">Server</h2>
 
     <p>Install the binary on a server, execute it, and redirect output to a file.</p>
 
     <ul>
         <li>Clone the repo (`git clone https://github.com/codazoda/consentless`)</li>
-        <li>Build the binary (`make`)</li>
-        <li>Install (`sudo make install`)</li>
+        <li>Build the binary (`go build -o consentless`)</li>
+        <li>Run (`./consentless`)</li>
     </ul>
 
-    <p>You can run consentless in a VPS or a docker container or the cloud.</p>
+    <p>You can run consentless in a VPS or a Docker container or the cloud.</p>
 
-    <h3>Reporting</h3>
 
-    <p></p>
+    <h2 id="rationale">Rationale</h2>
 
-    <h2>Standard Output</h2>
+    <p><strong>Standard Output</strong></p>
 
     <p>All CSV data, from impressions, goes to stdout. This allows you to redirect output to a file or attach stdout to a service like pub/sub.</p>
 
-    <h3>Warning</h3>
+    <p><strong>Why an image (vs Beacon or headers)?</strong></p>
+
+    <p>The client sends a simple image request that includes the page URL as a query parameter. This avoids custom headers and CORS preflight, works with most Content Security Policies via <em>img-src</em>, and keeps the snippet tiny. While <em>sendBeacon</em> is great for unload reliability, it requires allowing the collection origin in your CSP <em>connect-src</em> and adds more code. Custom headers (like X-Referrer) on cross-origin requests are frequently stripped or trigger preflight, so we avoid them.</p>
+
+
+    <h3 id="license">License</h3>
+
+    <p>MIT License. See LICENSE.txt.</p>
+
+
+    <h3 id="privacyWarning">Privacy Warning</h3>
 
     <p>If you pass PII in the query string parameter, or as any other part of a URL, then it will be logged. If someone else passes PII in a link to one of your URLs then you might log that.</p>
 
