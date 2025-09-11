@@ -17,17 +17,17 @@
 
     <h1>Consentless</h1>
 
+    <p>Track website analytics while preserving visitor privacy. No cookie banners or consent required.</p>
+
     <ol>
         <li><a href="#about">About</a></li>
         <li><a href="#gettingStarted">Getting Started</a></li>
         <li><a href="#license">License</a></li>
     </ol>
 
-    <p>Track website analytics while preserving visitor privacy. No cookie banners or consent required.</p>
-
     <h2 id="about">About</h2>
 
-    <p>Consentless is an open source, minimalist, and pricacy preserving traffic counter. It aims to be GDPR compliant without requiring consent. It does so by tracking only impressions on URLs and not IP address or other user identifiable information. Time is tracked only to minute precision to further reduce the ability to pinpoint users with supplemental data.</p>
+    <p>Consentless is an open source, minimalist, and privacy preserving traffic counter. It aims to be GDPR compliant without requiring consent. It does so by tracking only impressions on URLs and not IP address or other user identifiable information. Time is tracked only to minute precision to further reduce the ability to pinpoint users with supplemental data.</p>
 
     <p>It's designed to track impressions instead of users.</p>
 
@@ -49,6 +49,11 @@
     <code>
         <pre>&lt;script src="https://counter.example.com/counter.js" async&gt;&lt;/script&gt;</pre>
     </code>
+
+    <h4>Why an image (vs Beacon or headers)</h4>
+    <p>
+        The client sends a simple image request that includes the page URL as a query parameter. This avoids custom headers and CORS preflight, works with most Content Security Policies via <em>img-src</em>, and keeps the snippet tiny. While <em>sendBeacon</em> is great for unload reliability, it requires allowing the collection origin in your CSP <em>connect-src</em> and adds more code. Custom headers (like X-Referrer) on cross-origin requests are frequently stripped or trigger preflight, so we avoid them.
+    </p>
 
     <h3>Server</h3>
 

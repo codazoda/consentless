@@ -14,18 +14,16 @@ func main() {
 	http.HandleFunc("/counter.js", serveConsentlessJS) // For backward compatibility
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
+		// Prevent caching of beacon responses
+		w.Header().Set("Cache-Control", "no-store, max-age=0")
 
-		// Handle preflight request
-		if r.Method == http.MethodOptions {
+		// Determine the URL being counted (single method: query param `u`)
+		url := r.URL.Query().Get("u")
+		if url == "" {
+			// Nothing to log; return no content
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-
-		// Get the X-Referrer header
-		url := r.Header.Get("X-Referrer")
 
 		// Use minute precision in local time
 		ts := time.Now().Format("2006-01-02 15:04")
@@ -56,15 +54,6 @@ func main() {
 
 // serveConsentlessJS serves the consentless.js script with dynamic domain and protocol
 func serveConsentlessJS(w http.ResponseWriter, r *http.Request) {
-	// Set CORS headers
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-
-	// Handle preflight request
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
 
 	// Get the host from the request to make the domain dynamic
 	host := r.Host
@@ -78,12 +67,11 @@ func serveConsentlessJS(w http.ResponseWriter, r *http.Request) {
 		protocol = "https"
 	}
 
-	// Generate JavaScript with dynamic domain and protocol
-	jsCode := fmt.Sprintf(`var xhr = new XMLHttpRequest();
-xhr.open('GET', "%s://%s?rand=" + Math.random(), true);
-xhr.setRequestHeader('X-Referrer', window.location.href);
-xhr.send();
-`, protocol, host)
+	// Generate minimal JavaScript with dynamic domain and protocol.
+	jsCode := fmt.Sprintf(`(function(){
+  var img=new Image();
+  img.src="%s://%s/?u="+encodeURIComponent(window.location.href)+"&rand="+Math.random();
+})();`, protocol, host)
 
 	// Serve JavaScript
 	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")

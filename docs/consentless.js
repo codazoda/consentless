@@ -1,4 +1,4 @@
-var xhr = new XMLHttpRequest();
-xhr.open('GET', "https://consentless.joeldare.com?rand=" + Math.random(), true);
-xhr.setRequestHeader('X-Referrer', window.location.href);
-xhr.send();
+(function(){
+  var img=new Image();
+  img.src="https://consentless.joeldare.com/?u="+encodeURIComponent(window.location.href)+"&rand="+Math.random();
+})();
