@@ -22,8 +22,6 @@
     <ol>
         <li><a href="#about">About</a></li>
         <li><a href="#gettingStarted">Getting Started</a></li>
-        <li><a href="#client">Client</a></li>
-        <li><a href="#server">Server</a></li>
         <li><a href="#rationale">Rationale</a></li>
         <li><a href="#license">License</a></li>
     </ol>
@@ -48,7 +46,7 @@
     <p>There are two parts to consentless: the client JavaScript and the server counter.</p>
 
 
-    <h2 id="client">Client</h2>
+    <h3 id="client">Client</h3>
 
     <p>Once you have the server configured you add the following script to the bottom of any web page to start tracking stats. This script goes just above the closing body tag.</p>
 
@@ -57,7 +55,7 @@
     </code>
 
 
-    <h2 id="server">Server</h2>
+    <h3 id="server">Server</h3>
 
     <p>Install the binary on a server, execute it, and redirect output to a file.</p>
 
@@ -79,6 +77,11 @@
     <p><strong>Why an image (vs Beacon or headers)?</strong></p>
 
     <p>The client sends a simple image request that includes the page URL as a query parameter. This avoids custom headers and CORS preflight, works with most Content Security Policies via <em>img-src</em>, and keeps the snippet tiny. While <em>sendBeacon</em> is great for unload reliability, it requires allowing the collection origin in your CSP <em>connect-src</em> and adds more code. Custom headers (like X-Referrer) on cross-origin requests are frequently stripped or trigger preflight, so we avoid them.</p>
+
+
+    <h3 id="github">GitHub</h3>
+
+    <p>You'll find <a href="https://github.com/codazoda/consentless">Concentless on GitHub</a>.</p>
 
 
     <h3 id="license">License</h3>
