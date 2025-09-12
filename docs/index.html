@@ -22,6 +22,7 @@
     <ol>
         <li><a href="#about">About</a></li>
         <li><a href="#gettingStarted">Getting Started</a></li>
+        <li><a href="#stats">Reading Stats</a></li>
         <li><a href="#rationale">Rationale</a></li>
         <li><a href="#license">License</a></li>
     </ol>
@@ -43,8 +44,14 @@
 
     <h2 id="gettingStarted">Getting Started</h2>
 
-    <p>There are two parts to consentless: the client JavaScript and the server counter.</p>
+    <p>To install Consentless do the following:</p>
 
+    <ol>
+        <li>Host Consentless on a VPS or Cloud Provider</li>
+        <li>Add the script tag to each website you want to track</li>
+    </ol>
+
+    <p>There are two parts to Consentless: the client JavaScript and the server counter.</p>
 
     <h3 id="client">Client</h3>
 
@@ -65,7 +72,7 @@
         <li>Run (`./consentless`)</li>
     </ul>
 
-    <p>You can run consentless in a VPS or a Docker container or the cloud.</p>
+    <p>You can run Consentless in a VPS or a Docker container or the cloud.</p>
 
 
     <h2 id="rationale">Rationale</h2>
@@ -77,6 +84,35 @@
     <p><strong>Why an image (vs Beacon or headers)?</strong></p>
 
     <p>The client sends a simple image request that includes the page URL as a query parameter. This avoids custom headers and CORS preflight, works with most Content Security Policies via <em>img-src</em>, and keeps the snippet tiny. While <em>sendBeacon</em> is great for unload reliability, it requires allowing the collection origin in your CSP <em>connect-src</em> and adds more code. Custom headers (like X-Referrer) on cross-origin requests are frequently stripped or trigger preflight, so we avoid them.</p>
+
+
+    <h2 id="stats">Reading Stats</h2>
+
+    <p>Consentless outputs it's stats as CSV data. You can process that data a number of ways. One way is to write it to a file.</p>
+
+
+    <h3>Downloading</h3>
+
+    <p>If you redirect standard output to a file it will produce a CSV and you can use SCP to grab it from the server.</p>
+
+    <code>
+        scp root@143.110.236.139:/some/path/consentless.log ~/consentless.log
+    </code>
+
+    
+    <h3>Query with SQLite</h3>
+
+    <p>I use SQLite to query the file directly.</p>
+
+    <code>
+        sqlite ':memory:' -cmd ".mode csv" -cmd ".import consentless.log c"
+    </code>
+
+    <p>Then run a query like.</p>
+
+    <code>
+        select count(*) from c;
+    </code>
 
 
     <h3 id="github">GitHub</h3>
