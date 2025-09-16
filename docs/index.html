@@ -69,9 +69,9 @@
     <p>Install the binary on a server, execute it, and redirect output somewhere useful (like a file).</p>
 
     <ul>
-        <li>Clone the repo (`git clone https://github.com/codazoda/consentless`)</li>
-        <li>Build the binary (`go build -o consentless`)</li>
-        <li>Run (`./consentless`)</li>
+        <li>Clone the repo (<code>git clone https://github.com/codazoda/consentless</code>)</li>
+        <li>Build the binary (<code>go build -o consentless</code>)</li>
+        <li>Run (<code>./consentless</code>)</li>
     </ul>
 
     <p>You can run Consentless in a VPS or a Docker container or the cloud.</p>
@@ -79,20 +79,13 @@
 
     <h4>Docker</h4>
 
-    <p>You can run the Contentless server under Docker.</p>
+    <p>You can run the server under Docker.</p>
 
-    <p>To build it run the following:</p>
-
-    <code>docker build --tag consentless .</code>
-
-    <p>Then to run it, use the following:</p>
-
-    <code>docker run -p 8080:8080 -it --rm consentless</code>
-
-    <p>Finally, use curl to make a request to the server. Note that it only outputs the stat to STDOUT.</p>
-
-    <code>curl -v "http://localhost:8080/?u=https://example.com"</code>
-
+    <ul>
+        <li>Build a container image (<code>docker build --tag consentless .</code>)</li>
+        <li>Run the container ( <code>docker run -p 8080:8080 -it --rm consentless</code>)</li>
+        <li>Test a request (<code>curl -v "http://localhost:8080/?u=https://example.com"</code>)</li>
+    </ul>
 
     <h2 id="rationale">Rationale</h2>
 
