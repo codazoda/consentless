@@ -1,3 +1,3 @@
 module github.com/codazoda/consentless
 
-go 1.24.4
+go 1.23.12

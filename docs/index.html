@@ -77,6 +77,23 @@
     <p>You can run Consentless in a VPS or a Docker container or the cloud.</p>
 
 
+    <h4>Docker</h4>
+
+    <p>You can run the Contentless server under Docker.</p>
+
+    <p>To build it run the following:</p>
+
+    <code>docker build --tag consentless .</code>
+
+    <p>Then to run it, use the following:</p>
+
+    <code>docker run -p 8080:8080 -it --rm consentless</code>
+
+    <p>Finally, use curl to make a request to the server. Note that it only outputs the stat to STDOUT.</p>
+
+    <code>curl -v "http://localhost:8080/?u=https://example.com"</code>
+
+
     <h2 id="rationale">Rationale</h2>
 
     <p><strong>Standard Output</strong></p>
